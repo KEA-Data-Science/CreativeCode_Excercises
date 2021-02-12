@@ -6,12 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- <script src="js/jquery-3.5.1.js"></script>
-    <link rel="stylesheet" href="bootstrap.min.css"> -->
-    <script src="https://code.jquery.com/jquery-3.5.1.js"
-        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-
-
     <style>
         body {
 
@@ -29,7 +23,6 @@
 
     <canvas id="canvasElement" width="1200" height="800" onclick="changeColorSet()"></canvas>
 
-
     <script>
         let canvas, ctx;
 
@@ -40,10 +33,11 @@
         // 3 : seconds
         // 4 : miliseconds
         const colorSets = [
-            ["#A4A4BF", "#F2EAED", "#16235F", "#2A3457", "#888C46"],
+            ["#000000", "#9a8b6c", "#087de4", "#0ca4e0", "#d3d851"],
             ["#270101", "#720017", "#D8D583", "#D9AC2A", "#763F02"],
             ["#05328E", "#752333", "#0432A3", "#8E5C1D", "#043D8C"],
             ["#1F1631", "#0486DB", "#012172", "#05DCA3", "#BBBF95"],
+            ["#A4A4BF", "#F2EAED", "#16235F", "#2A3457", "#888C46"],
             ["#272424", "#C2D3DA", "#81A3A7", "#F1F3F2", "#585A56"],
             ["#415939", "#1C2C58", "#F4F2B1", "#F3EFCA", "#8A5D59"]
         ]
@@ -74,7 +68,7 @@
         const milisecondBarHeight = .10
 
         // Initialization
-        $(document).ready(
+        window.addEventListener("load",
             function () {
                 canvas = document.getElementById('canvasElement')
                 ctx = canvas.getContext("2d")
@@ -135,7 +129,7 @@
 
         function drawClockGradient(yStart, ySize, fillColor, fillAmount) {
             let actualFillAmount;
-            actualFillAmount = fillAmount + ((1 - fillAmount) / 2)
+            actualFillAmount = fillAmount + ((1 - fillAmount) / 2) // solely for aesthetics, bar coloring looks wierd without some adjustment
 
             ctx.save()
 
