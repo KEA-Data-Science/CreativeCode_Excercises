@@ -12,15 +12,15 @@ let yCenter = canvas.height / 2
 let radius = canvas.height / 4
 
 //  document.onkeypress = myKeyPress
-window.addEventListener("keydown", myKeyPress)
+window.addEventListener("keydown", interpretKey)
 
 let lastKeyStroke = '-'
 let score = 0
 
 drawScene()
 
-function myKeyPress(e) {
-    var keynum;
+function interpretKey(e) {
+    let keynum;
 
     if (window.event) { // IE                  
         keynum = e.keyCode;
@@ -30,8 +30,10 @@ function myKeyPress(e) {
 
     lastKeyStroke = String.fromCharCode(keynum)
     console.log(lastKeyStroke);
-    score++
-    
+
+    // check to see if one of wasd keys are pressed, add to score if so
+    if ("WASD".includes(lastKeyStroke)) { score++ }
+
     drawScene() // redraws entire scene
 }
 
@@ -43,7 +45,7 @@ function clearCanvas() {
     ctx.restore()
 }
 
-function drawScene(){
+function drawScene() {
     clearCanvas()
     drawBackground()
     drawText()
