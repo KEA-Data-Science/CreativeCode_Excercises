@@ -39,7 +39,7 @@
         // 2 : minutes
         // 3 : seconds
         // 4 : miliseconds
-       const colorSets = [
+        const colorSets = [
             ["#A4A4BF", "#F2EAED", "#16235F", "#2A3457", "#888C46"],
             ["#270101", "#720017", "#D8D583", "#D9AC2A", "#763F02"],
             ["#05328E", "#752333", "#0432A3", "#8E5C1D", "#043D8C"],
@@ -50,8 +50,6 @@
 
         const months = ["januar", "februar", "marts", "april", "maj", "juni", "juli", "september", "oktober", "november", "december"]
 
-
-        let currentColorIndex = 0
         let colorSetCounter = 0
 
         let canvasColor = colorSets[0][0]
@@ -129,7 +127,6 @@
 
         //
         function clearCanvas() {
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
             ctx.save()
             ctx.fillStyle = canvasColor
             ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
@@ -137,13 +134,10 @@
         }
 
         function drawClockGradient(yStart, ySize, fillColor, fillAmount) {
-            ctx.save()
-
             let actualFillAmount;
+            actualFillAmount = fillAmount + ((1 - fillAmount) / 2)
 
-            // if ((fillAmount + 0.2) > 1) { actualFillAmount = fillAmount + ((1 - fillAmount) / 4) }
-            // else
-            { actualFillAmount = fillAmount + ((1 - fillAmount) / 2) }
+            ctx.save()
 
             let linGrad = ctx.createLinearGradient(0, 0, actualFillAmount * ctx.canvas.width, 0)
             linGrad.addColorStop(0, fillColor)
