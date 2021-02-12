@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- <script src="js/jquery-3.5.1.js"></script>
+    <link rel="stylesheet" href="bootstrap.min.css"> -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+
+    <style>
+        body {
+
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: rgb(0, 0, 0);
+        }
+    </style>
+
+    <title>Clock</title>
+</head>
+
+<body>
+
+    <canvas id="canvasElement" width="1200" height="800" onclick="changeColorSet()"></canvas>
+
+
+    <script>
+        let canvas, ctx;
+
+        // color sets, colors index:
+        // 0 : background
+        // 1 : hours
+        // 2 : minutes
+        // 3 : seconds
+        // 4 : miliseconds
+       const colorSets = [
+            ["#A4A4BF", "#F2EAED", "#16235F", "#2A3457", "#888C46"],
+            ["#270101", "#720017", "#D8D583", "#D9AC2A", "#763F02"],
+            ["#05328E", "#752333", "#0432A3", "#8E5C1D", "#043D8C"],
+            ["#1F1631", "#0486DB", "#012172", "#05DCA3", "#BBBF95"],
+            ["#272424", "#C2D3DA", "#81A3A7", "#F1F3F2", "#585A56"],
+            ["#415939", "#1C2C58", "#F4F2B1", "#F3EFCA", "#8A5D59"]
+        ]
+
+        const months = ["januar", "februar", "marts", "april", "maj", "juni", "juli", "september", "oktober", "november", "december"]
+
+
+        let currentColorIndex = 0
+        let colorSetCounter = 0
+
+        let canvasColor = colorSets[0][0]
+        let hourBarColor = colorSets[0][1]
+        let minuteColor = colorSets[0][2]
+        let secondBarColor = colorSets[0][3]
+        let milisecondColor = colorSets[0][4]
+
+        textColor = "white"
+        // canvas to browser window ratio (1 = 100%)
+        const xWindowProportion = 1
+        const yWindowProportion = 1
+        // absolute pixel value adjustments        
+        const xPadding = 50
+        const yTopPadding = 50
+        const barIntervalHeight = 20 // distance btw bars
+        const textBottomMargin = 10 // distance from bottom of associated time bar to text bottom
+        // percentage adjustment values
+        const hoursBarHeight = .25
+        const minutesBarHeight = .20
+        const secondsBarHeight = .15
+        const milisecondBarHeight = .10
+
+        // Initialization
+        $(document).ready(
+            function () {
+                canvas = document.getElementById('canvasElement')
+                ctx = canvas.getContext("2d")
+                adjustCanvasDimensions()
+                setInterval(drawClock, 50)
+            })
+
+        function drawClock() {
+            adjustCanvasDimensions()
+            clearCanvas()
+
+            const date = new Date() //  a single moment in time
+            const hoursRaw = date.getHours() // raw 24 based hour
+            const minutesRaw = date.getMinutes()
+            const secondsRaw = date.getSeconds()
+            const miliseconds = date.getMilliseconds()
+
+            const hourFill = ((hoursRaw + 0.1) / 24)
+            const minuteFill = ((minutesRaw + 0.1) / 60)
+            const secondFill = ((secondsRaw + 0.1) / 60)
+            const milisecondFill = (miliseconds + 0.1) / 1000
+
+            const halfCanvasWidth = ctx.canvas.width / 2
+            const canvasHeight = ctx.canvas.height
+
+
+            YExtreme = barIntervalHeight + yTopPadding
+            drawClockGradient(YExtreme, canvasHeight * hoursBarHeight, hourBarColor, hourFill)
+            drawTimeValue(hoursRaw, xPadding + halfCanvasWidth * hourFill, YExtreme + canvasHeight * hoursBarHeight - textBottomMargin)
+
+            YExtreme = YExtreme + canvasHeight * hoursBarHeight + barIntervalHeight
+            drawClockGradient(YExtreme, canvasHeight * minutesBarHeight, minuteColor, minuteFill)
+            drawTimeValue(minutesRaw, xPadding + halfCanvasWidth * minuteFill, YExtreme + canvasHeight * minutesBarHeight - textBottomMargin)
+
+            YExtreme = YExtreme + canvasHeight * minutesBarHeight + barIntervalHeight
+            drawClockGradient(YExtreme, canvasHeight * secondsBarHeight, secondBarColor, secondFill)
+            drawTimeValue(secondsRaw, xPadding + halfCanvasWidth * secondFill, YExtreme + canvasHeight * secondsBarHeight - textBottomMargin)
+
+            YExtreme = YExtreme + canvasHeight * secondsBarHeight + barIntervalHeight
+            drawClockGradient(YExtreme, canvasHeight * milisecondBarHeight, milisecondColor, milisecondFill)
+
+            // Drawing date and year
+            drawTimeValue(date.getUTCDay() + ". " + monthName(date.getMonth()) + " " + date.getFullYear(), halfCanvasWidth, yTopPadding * 2, "center", "white")
+        }
+
+        function adjustCanvasDimensions() {
+            canvas.width = window.innerWidth * xWindowProportion;
+            canvas.height = window.innerHeight * yWindowProportion;
+        }
+
+        //
+        function clearCanvas() {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+            ctx.save()
+            ctx.fillStyle = canvasColor
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+            ctx.restore()
+        }
+
+        function drawClockGradient(yStart, ySize, fillColor, fillAmount) {
+            ctx.save()
+
+            let actualFillAmount;
+
+            // if ((fillAmount + 0.2) > 1) { actualFillAmount = fillAmount + ((1 - fillAmount) / 4) }
+            // else
+            { actualFillAmount = fillAmount + ((1 - fillAmount) / 2) }
+
+            let linGrad = ctx.createLinearGradient(0, 0, actualFillAmount * ctx.canvas.width, 0)
+            linGrad.addColorStop(0, fillColor)
+            linGrad.addColorStop(actualFillAmount, "#212121")
+
+            ctx.fillStyle = linGrad
+            ctx.fillRect(xPadding, yStart, ctx.canvas.width - (xPadding * 2), ySize)
+
+            ctx.restore()
+        }
+
+        function drawTimeValue(value, xStart, yStart, textAlign = "center", color = textColor) {
+            ctx.save()
+            ctx.font = "italic " + window.innerHeight / 12 + "px Unknown Font, sans-serif"
+            ctx.strokeStyle = color
+            ctx.textAlign = textAlign;
+            ctx.strokeText(value, xStart, yStart)
+            ctx.restore()
+        }
+
+        function monthName(month) {
+            return months[month - 1]
+        }
+
+        function changeColorSet() {
+            colorSetCounter++
+            if (colorSetCounter >= colorSets.length) {
+                colorSetCounter = 0
+            }
+            canvasColor = colorSets[colorSetCounter][0]
+            hourBarColor = colorSets[colorSetCounter][1]
+            minuteColor = colorSets[colorSetCounter][2]
+            secondBarColor = colorSets[colorSetCounter][3]
+            milisecondColor = colorSets[colorSetCounter][4]
+        }
+
+    </script>
+
+</body>
+
+</html>
