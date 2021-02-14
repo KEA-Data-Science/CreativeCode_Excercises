@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+
     <style>
         body {
 
@@ -22,6 +23,7 @@
 <body>
 
     <canvas id="canvasElement" width="1200" height="800" onclick="changeColorSet()"></canvas>
+
 
     <script>
         let canvas, ctx;
@@ -94,24 +96,23 @@
             const halfCanvasWidth = ctx.canvas.width / 2
             const canvasHeight = ctx.canvas.height
 
+            let yExtreme = yTopPadding
+            drawClockGradient(yExtreme, canvasHeight * hoursBarHeight, hourBarColor, hourFill)
+            drawTimeValue(hoursRaw, xPadding + halfCanvasWidth * hourFill, yExtreme + canvasHeight * hoursBarHeight - textBottomMargin)
 
-            YExtreme = barIntervalHeight + yTopPadding
-            drawClockGradient(YExtreme, canvasHeight * hoursBarHeight, hourBarColor, hourFill)
-            drawTimeValue(hoursRaw, xPadding + halfCanvasWidth * hourFill, YExtreme + canvasHeight * hoursBarHeight - textBottomMargin)
+            yExtreme = yExtreme + canvasHeight * hoursBarHeight + barIntervalHeight
+            drawClockGradient(yExtreme, canvasHeight * minutesBarHeight, minuteColor, minuteFill)
+            drawTimeValue(minutesRaw, xPadding + halfCanvasWidth * minuteFill, yExtreme + canvasHeight * minutesBarHeight - textBottomMargin)
 
-            YExtreme = YExtreme + canvasHeight * hoursBarHeight + barIntervalHeight
-            drawClockGradient(YExtreme, canvasHeight * minutesBarHeight, minuteColor, minuteFill)
-            drawTimeValue(minutesRaw, xPadding + halfCanvasWidth * minuteFill, YExtreme + canvasHeight * minutesBarHeight - textBottomMargin)
+            yExtreme = yExtreme + canvasHeight * minutesBarHeight + barIntervalHeight
+            drawClockGradient(yExtreme, canvasHeight * secondsBarHeight, secondBarColor, secondFill)
+            drawTimeValue(secondsRaw, xPadding + halfCanvasWidth * secondFill, yExtreme + canvasHeight * secondsBarHeight - textBottomMargin)
 
-            YExtreme = YExtreme + canvasHeight * minutesBarHeight + barIntervalHeight
-            drawClockGradient(YExtreme, canvasHeight * secondsBarHeight, secondBarColor, secondFill)
-            drawTimeValue(secondsRaw, xPadding + halfCanvasWidth * secondFill, YExtreme + canvasHeight * secondsBarHeight - textBottomMargin)
-
-            YExtreme = YExtreme + canvasHeight * secondsBarHeight + barIntervalHeight
-            drawClockGradient(YExtreme, canvasHeight * milisecondBarHeight, milisecondColor, milisecondFill)
+            yExtreme = yExtreme + canvasHeight * secondsBarHeight + barIntervalHeight
+            drawClockGradient(yExtreme, canvasHeight * milisecondBarHeight, milisecondColor, milisecondFill)
 
             // Drawing date and year
-            drawTimeValue(date.getUTCDay() + ". " + monthName(date.getMonth()) + " " + date.getFullYear(), halfCanvasWidth, yTopPadding * 2, "center", "white")
+            drawTimeValue(date.getDate() + ". " + monthName(date.getMonth()) + " " + date.getFullYear(), halfCanvasWidth, yTopPadding * 2, "center", "white")
         }
 
         function adjustCanvasDimensions() {
