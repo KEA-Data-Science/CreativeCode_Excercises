@@ -85,7 +85,7 @@ function createHelpText() {
     })
     let textRender1 = new RenderText("PURPLE: W A S D", textP1Keys, 30)
     textP1Keys.sprite = textRender1
-    textRender1.strokeStyle = "#purple"
+    textRender1.strokeStyle = "purple"
 
     let textP2Keys = new GameObject("text2", {
         update: function (gameObject) {
