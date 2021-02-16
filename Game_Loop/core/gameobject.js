@@ -11,7 +11,7 @@ const GAMEOBJECTINTERNAL = {
     }
 }
 }
-// The game object is meant to be extented
+// The game object is meant to be extented: 
 class GameObject {
     constructor(name, qualia, active = true) {
         this.name = name
@@ -25,10 +25,10 @@ class GameObject {
         this.qualia = qualia
         this.manualRemove = false // set to true if there is a custom implementation of object removal
     }
+
+
     // deletes GameObject from Scene; it is not fine
     remove = function() {
         
     }
-
-
 }

@@ -12,7 +12,7 @@ class Heart {
 
     beat = function () {
         this.currentBeat++
-        this.deltaTime = this._calculateDeltaTime()
+        this.deltaTime = this._calculateHeartState()
         this.timeSinceStart += this.deltaTime
     }
 
@@ -24,7 +24,7 @@ class Heart {
 
     // method returns elapsed time since last heartbeat
     // IMPORTANT: Do not call this method manually
-    _calculateDeltaTime = function () {
+    _calculateHeartState = function () {
         const thisTime = Date.now()
         let delta = thisTime - this._lastTime
         this._lastTime = thisTime
@@ -33,7 +33,3 @@ class Heart {
 }
 
 const HEART = new Heart()
-
-
-
-

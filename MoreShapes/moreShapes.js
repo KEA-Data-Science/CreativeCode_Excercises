@@ -17,6 +17,7 @@ window.addEventListener("keydown", interpretKey)
 let lastKeyStroke = '-'
 let score = 0
 
+
 drawScene()
 
 function interpretKey(e) {
@@ -32,9 +33,15 @@ function interpretKey(e) {
     console.log(lastKeyStroke);
 
     // check to see if one of wasd keys are pressed, add to score if so
-    if ("WASD".includes(lastKeyStroke)) { score++ }
+    if ("WASD".includes(lastKeyStroke)) {if(score<=360) score++ } else {if(score>0) score--}
 
     drawScene() // redraws entire scene
+}
+
+function drawScene() {
+    clearCanvas()
+    drawBackground()
+    drawText()
 }
 
 function clearCanvas() {
@@ -45,15 +52,9 @@ function clearCanvas() {
     ctx.restore()
 }
 
-function drawScene() {
-    clearCanvas()
-    drawBackground()
-    drawText()
-}
-
 function drawBackground() {
     ctx.beginPath()
-    ctx.arc(xCenter, yCenter, radius, 0, 2 * Math.PI, false)
+    ctx.arc(xCenter, yCenter, radius, 0, (2 * Math.PI)*(score/360), false)
     ctx.fillStyle = "lightblue"
     ctx.fill()
 

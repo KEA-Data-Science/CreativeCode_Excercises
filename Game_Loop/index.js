@@ -2,103 +2,155 @@
 
 let canvas, ctx
 const scenemanager = new SceneManager()
-const gameloop = new GameLoop(scenemanager)
-
-let player1 // GameObject type thing, specified in createPlayer1
-let player2 // see comment for 1
-let player1keys = ["W", "S", "A", "D"]
-let player2keys = ["h", "e", "d", "f"]
-
 
 window.addEventListener("load", function () { setup() })
 
 function setup() {
 
+    // scene manager hold layers, and the gameloop; 
+    // the gameloop takes care of 'updating', then rendering all 'gameobjects' 
+    //      * by 'looping' through all layers contained.
+    // The gameloop the beats the HEART, which should always be queries to make gameplay as framerate independent as possibleh
+    scenemanager.GAMELOOP = new GameLoop(scenemanager)
+
     canvas = document.getElementById("canvas")
     ctx = canvas.getContext("2d")
 
-    player1 = createPlayer1(player1)
-    player2 = createPlayer2(player2)
-    textRenderers = createHelpText()
+    _adjustCanvas() // makes the canvas the size of the renderable part of browser window
 
+    const player1 = createPlayer("Olfert", ["W", "S", "A", "D"], { x: 150, y: 200 }, 4, 7, -1, "resources/images/Player/p2_stand.png")
+    const player2 = createPlayer("Oline", ["h", "e", "d", "f"], { x: 270, y: 100 }, 6, 4, 1, "resources/images/Player/p3_jump.png")
+    const player3 = createPlayer("Peter", ["U", "J", "H", "K"], { x: 352, y: 122 }, 16, 4, 0, "resources/images/Player/p1_hurt.png")
+    
     GAMEINPUT.startDetectingInput()
-    GAMEINPUT.subscribeToKeyPress(player1.qualia.playerInput)
-    GAMEINPUT.subscribeToKeyPress(player2.qualia.playerInput)
+    GAMEINPUT.subscribeToKeyDown(player1 )
+    GAMEINPUT.subscribeToKeyDown(player2 )
+    GAMEINPUT.subscribeToKeyDown(player3 )
+    console.log(GAMEINPUT)
 
-    scenemanager.includeInLayer(player1)
-    scenemanager.includeInLayer(player2)
-    scenemanager.includeInLayer(textRenderers[0])
-    scenemanager.includeInLayer(textRenderers[1])
+    scenemanager.includeInLayer(player1,4, 4)
+    scenemanager.includeInLayer(player2,4, 5)
+    scenemanager.includeInLayer(player3,4, 2)
 
-    setInterval(gameloop.doLoop, 30)
+
+    textRenderers = createHelpText() // needed for placing the text
+
+    scenemanager.includeInLayer(textRenderers[0], 5)
+    scenemanager.includeInLayer(textRenderers[1], 3)
+    scenemanager.includeInLayer(textRenderers[2], 3)
+
+    createTestBackground()
+
+    console.log(scenemanager.findGameObjects("Olfert"))
+    console.log(scenemanager.findGameObjectByID(2))
+
+    scenemanager.GAMELOOP.doLoop()
 }
 
-function createPlayer1() { // this is is stupid, but I'm noob at js and can't get the reference to the containing object to work, please help :p 
-    let __player = new GameObject("Olfert",
+function createPlayer(name, keySet, position, xChange, yChange, rotSpeed, spriteSource) {
+    let newGO = new GameObject(name,
         {
-            xChange: 10,
-            yChange: 10,
+            rotateSpeed: rotSpeed,
+            keys: keySet,
+            xChange: xChange,
+            yChange: yChange,
             health: 10,
-            playerInput: function (key) {
-                if (key == player1keys[0]) { player1.qualia.yChange -= 4 } // this is not right by any means, but I cna figure out how to refer directly to xChange and yChange this.xChange will not work
-                if (key == player1keys[1]) { player1.qualia.yChange += 4 }
-                if (key == player1keys[2]) { player1.qualia.xChange -= 4 }
-                if (key == player1keys[3]) { player1.qualia.xChange += 4 }
+            playerInput: function (key, gameObject) {
+                if (key == gameObject.qualia.keys[0]) { gameObject.qualia.yChange -= 4 }
+                if (key == gameObject.qualia.keys[1]) { gameObject.qualia.yChange += 4 }
+                if (key == gameObject.qualia.keys[2]) { gameObject.qualia.xChange -= 4 }
+                if (key == gameObject.qualia.keys[3]) { gameObject.qualia.xChange += 4 }
             },
             update: function (gameObject) {
                 gameObject.transform.move(this.xChange * HEART.deltaTime, this.yChange * HEART.deltaTime)
+                gameObject.transform.rotate(gameObject.qualia.rotateSpeed)
                 // restrain player position within screen 
                 keepPlayerOnScreen(gameObject)
             }
         })
 
-    __player.sprite = new Sprite("resources/images/Player/p2_stand.png", __player)
-    __player.transform.newPosition(150, 150)
+    newGO.sprite = new Sprite(spriteSource, newGO)
+    newGO.transform.newPosition(position.x, position.y)
 
-    return __player
+    return newGO
 }
 
-function createPlayer2() { // see comment for player one
-    let __player = new GameObject("Oline",
-        {
-            xChange: 8,
-            yChange: 12,
-            health: 10,
-            playerInput: function (key) {
-                if (key == player2keys[0]) { player2.qualia.yChange -= 6 } // this is not right by any means, but I cna figure out how to refer directly to xChange and yChange this.xChange will not work
-                if (key == player2keys[1]) { player2.qualia.yChange += 6 }
-                if (key == player2keys[2]) { player2.qualia.xChange -= 6 }
-                if (key == player2keys[3]) { player2.qualia.xChange += 6 }
-                //console.log("Input reached player: " + key)
-            },
-            update: function (gameObject) {
-                //console.log("GameObject says hello!")
-                gameObject.transform.move(this.xChange * HEART.deltaTime, this.yChange * HEART.deltaTime)
-                // console.log(this.xChange + " " + this.yChange)
-                // restrain player position within screen 
-                keepPlayerOnScreen(gameObject)
-            }
-        })
-
-    __player.sprite = new Sprite("resources/images/Player/p3_jump.png", __player)
-    __player.transform.newPosition(100, 100)
-
-    return __player
-}
 
 function createHelpText() {
-    let textP1Keys = new GameObject("text1", { update: function (gameObject) { } })
-    textP1Keys.transform.newPosition(200, 670)
-    let textRender1 = new RenderText("PURPLE: W A S D", textP1Keys, 24)
-    textP1Keys.sprite = textRender1
 
-    let textP2Keys = new GameObject("text2", { update: function (gameObject) { } })
-    let textRender2 = new RenderText("RED: NUMPAD 8 5 4 6", textP2Keys, 24)
-    textP2Keys.transform.newPosition(200, 720)
+    let textP1Keys = new GameObject("text1", {
+        update: function (gameObject) {
+            gameObject.transform.newPosition(200, ctx.canvas.height - 110)
+        }
+    })
+    let textRender1 = new RenderText("PURPLE: W A S D", textP1Keys, 30)
+    textP1Keys.sprite = textRender1
+    textRender1.strokeStyle = "#purple"
+
+    let textP2Keys = new GameObject("text2", {
+        update: function (gameObject) {
+            gameObject.transform.newPosition(200, ctx.canvas.height - 80)
+        }
+    })
+    let textRender2 = new RenderText("GREEN:  U J H K", textP2Keys, 30)
     textRender2.filledText = true
+    textRender2.fillStyle = "darkgreen"
     textP2Keys.sprite = textRender2
 
-    return [textP1Keys, textP2Keys]
+    let textP3Keys = new GameObject("text3", {
+        update: function (gameObject) {
+            gameObject.transform.newPosition(200, ctx.canvas.height - 140)
+        }
+    })
+    let textRender3 = new RenderText("RED: NUMPAD 8 5 4 6", textP3Keys, 30)
+    textRender3.filledText = true
+    textRender3.fillStyle = "darkred"
+    textP3Keys.sprite = textRender3
+
+    return [textP1Keys, textP2Keys, textP3Keys]
+}
+
+function createTestBackground() {
+
+    rectangleObject = new GameObject("Erecty", {
+        update: function (gameObject) {
+            gameObject.transform.rotate(1)
+        }
+    })
+    rectangleObject.transform.newPosition(600, 600)
+    rectangleObject.sprite = new Rectangle(rectangleObject, 120, 70)
+
+    scenemanager.includeInLayer(rectangleObject, 2)
+
+    circleObject = new GameObject("Circle1", {
+        update: function (gameObject) {
+            gameObject.transform.newPosition(ctx.canvas.width * 0.2, ctx.canvas.height * 0.8)
+            // scaling circle up and down
+            if (gameObject.transform.scale > 1) { gameObject.goingUP = false }
+            if (gameObject.transform.scale < 0.03) { gameObject.goingUP = true }
+            if (gameObject.goingUP) { gameObject.transform.scale = gameObject.transform.scale + 0.01 }
+            else { gameObject.transform.scale = gameObject.transform.scale - 0.01 }
+        }
+    })
+    circleObject.goingUP = true // defining new field in gameobject
+    circleObject.sprite = new Circle(circleObject, 100)
+    circleObject.sprite.fillStyle = "grey"
+    circleObject.sprite.stroked = true
+    circleObject.sprite.strokeStyle = "darkblue"
+    circleObject.transform.newPosition(ctx.canvas.width / 2, ctx.canvas.height / 2)
+
+    scenemanager.includeInLayer(circleObject, 2)
+
+
+    // let playerCircle = new GameObject("PlayerCircle",
+    //     {
+    //         update: function (gameObject) {
+    //             gameObject.transform.newPosition(gameObject.parentObject.transform.x, gameObject.parentObject.transform.y)
+    //         }
+    //     })
+    // playerCircle.sprite = new Circle(playerCircle, 30,{x:25,y:-25})
+    // playerCircle.parentObject = player1
+    // scenemanager.includeInLayer(playerCircle, 2)
 }
 
 // adjustment ensures that object is on screen by inserting it on the reverse side, oldschool

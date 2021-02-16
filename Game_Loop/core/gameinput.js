@@ -1,5 +1,6 @@
 const GAMEINPUT = {
     keyPressSubscribers: [],  // should contain only callback methods, taking a single parameter for keystroke
+    keyPressGameObjects: [],
     _interpretKey: function (e) {
         let keynum;
 
@@ -10,29 +11,31 @@ const GAMEINPUT = {
         }
 
         lastKeyStroke = String.fromCharCode(keynum)
-        console.log(lastKeyStroke)
+        //console.log(lastKeyStroke)
 
-        GAMEINPUT._informKeyPressSubscribers(lastKeyStroke)
+        GAMEINPUT._informKeyDownSubscribers(lastKeyStroke)
     },
-    _informKeyPressSubscribers: function (keyStroke) {
-        GAMEINPUT.keyPressSubscribers.forEach(subscriberCallback => {
-            subscriberCallback(keyStroke)
-        });
-    },
-    subscribeToKeyPress: function (callback) {
-        if (GAMEINPUT.keyPressSubscribers.indexOf(callback) == -1) {
-            GAMEINPUT.keyPressSubscribers.push(callback)
+    _informKeyDownSubscribers: function (keyStroke) {
+
+        for (let index = 0; index < GAMEINPUT.keyPressSubscribers.length; index++) {
+            const sub = GAMEINPUT.keyPressSubscribers[index];
+            sub.qualia.playerInput(keyStroke,sub)            
         }
     },
-    unsubscribeFromKeyPress: function (callback) {
-        indexOfCallback = GAMEINPUT.keyPressSubscribers.indexOf(callback)
+    subscribeToKeyDown: function (gameObject) {
+        if (GAMEINPUT.keyPressSubscribers.indexOf(gameObject) == -1) {
+            GAMEINPUT.keyPressSubscribers.push(gameObject)
+        }
+    },
+    unsubscribeFromKeyPress: function (gameObject) {
+        indexOfCallback = GAMEINPUT.keyPressSubscribers.indexOf(gameObject)
         if (indexOfCallback != -1) {
             GAMEINPUT.keyPressSubscribers.splice(indexOfCallback, 1)
+        } else{
+            console.log("Request to unsubscribe callback from keydown press failed. Callback not found")
         }
     },
     startDetectingInput: function () {
         window.addEventListener("keydown", this._interpretKey)
     }
 }
-
-
