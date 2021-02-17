@@ -90,7 +90,7 @@ function createPlayerHelpText() {
             gameObject.transform.newPosition(200, ctx.canvas.height - 110)
         }
     })
-    let pinkPlayerText = new RenderText("PINK: W A S D", pinkPlayerTextObject, 30)
+    let pinkPlayerText = new RenderText("PINK: NUMPAD 8 5 4 6", pinkPlayerTextObject, 30)
     pinkPlayerTextObject.sprite = pinkPlayerText
     pinkPlayerText.strokeStyle = "#242424"
     pinkPlayerText.fillStyle = "#f19cb7"
@@ -105,16 +105,16 @@ function createPlayerHelpText() {
     greenPlayerText.fillStyle = "darkgreen"
     greenPlayerTextObject.sprite = greenPlayerText
 
-    let redPlayerTextObject = new GameObject("text3", {
+    let bluePlayerTextObject = new GameObject("text3", {
         update: function (gameObject) {
             gameObject.transform.newPosition(200, ctx.canvas.height - 140)
         }
     })
-    let redPlayerText = new RenderText("RED: NUMPAD 8 5 4 6", redPlayerTextObject, 30)
-    redPlayerText.fillStyle = "darkred"
-    redPlayerTextObject.sprite = redPlayerText
+    let bluePlayerText = new RenderText("BLUE: W A S D", bluePlayerTextObject, 30)
+    bluePlayerText.fillStyle = "blue"
+    bluePlayerTextObject.sprite = bluePlayerText
 
-    return [pinkPlayerTextObject, greenPlayerTextObject, redPlayerTextObject]
+    return [pinkPlayerTextObject, greenPlayerTextObject, bluePlayerTextObject]
 }
 
 createSmallUtilityGameObjects = function () {
@@ -155,7 +155,7 @@ function createBackground() {
 
     // create logo group: a parent object, hav
     logoObject = new GameObject("Version Bar Text Object", { update: function () { } })
-    logoObject.sprite = new RenderText("Game Loop 2nd Run", logoObject, 20)
+    logoObject.sprite = new RenderText("Game Loop 3rd Run", logoObject, 20)
     logoObject.sprite.fillStyle = "white"
     logoObject.sprite.filledText = true
     scenemanager.includeInScene(logoObject, 2, 2)

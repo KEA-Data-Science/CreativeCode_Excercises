@@ -33,6 +33,6 @@ class GameLoop {
         }
 
         // plan next loop
-        setTimeout(scenemanager.GAMELOOP.doLoop,30)     
+        setTimeout(scenemanager.GAMELOOP.doLoop,20)     
     }
 }
