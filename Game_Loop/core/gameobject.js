@@ -13,11 +13,11 @@ const GAMEOBJECTINTERNAL = {
 }
 // The game object is meant to be extented: 
 class GameObject {
-    constructor(name, qualia, active = true) {
+    constructor(name, qualia, active = true,x=0,y=0) {
         this.name = name
         this.id = GAMEOBJECTINTERNAL.getNewId(GAMEOBJECTINTERNAL.lockKey)
         this.activeInScene = active
-        this.transform = new Transform2D(0, 0)
+        this.transform = new Transform2D(x, y)
         this.sprite // this should be Sprite class object (renderer2D)
         this.notRenderable = false // important, non-rendered GOs must set this to true
         // qualia are fields and methods to be associated with the game in the shape of an object literal
@@ -29,6 +29,6 @@ class GameObject {
 
     // deletes GameObject from Scene; it is not fine
     remove = function() {
-        
+        print("Remove was called")
     }
 }

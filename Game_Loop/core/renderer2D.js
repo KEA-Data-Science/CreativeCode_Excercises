@@ -4,8 +4,10 @@
 // Note for creation of renderable types; types must have a field that is a function called 'render'
 // It is advised to hook into the GameObject class or at least the Transform2D class
 // If you don't hook into the GameObject structure, you need to figure out your own way of updating your renderable
-// (if you hook into the GameObject structure, simply supply the renderable the the gameobject.sprite 
+// (if you hook into the GameObject structure, simply supply the renderable the gameobject.sprite 
 // - and update the gameobject.transform to adjust renderable )
+//
+// Note: scaling does not work for sprite yet
 
 ///
 const CANVASDEFAULTS = {
@@ -28,6 +30,8 @@ class Sprite {
     }
 }
 
+/// modification to RenderText and text drawing: possibility to render unstroked text
+
 class RenderText {
     constructor(textString, gameObject, size = CANVASDEFAULTS.fontSize, font = "italic " + size + "px Unknown Font, sans-serif", textAlignment = "center", strokeStyle = "black") {
         this.text = textString
@@ -36,7 +40,8 @@ class RenderText {
         this.textAlignment = textAlignment
         this.strokeStyle = strokeStyle
         this.fillStyle = strokeStyle //fillStyle defaults to provided strokeStyle, which defaults to 'black'
-        this.filledText = false // stroked text is default
+        this.filledText = true // stroked text is default
+        this.strokedText = false
         this.gameObject = gameObject
 
         this.render = function () {
@@ -81,8 +86,8 @@ class Rectangle {
 
 function _drawRectangle(rectangle){    
 
-    actualWidth = rectangle.height * rectangle.gameObject.transform.scale    
-    actualHeight = rectangle.width * rectangle.gameObject.transform.scale
+    actualWidth = rectangle.width * rectangle.gameObject.transform.scale    
+    actualHeight = rectangle.height * rectangle.gameObject.transform.scale
 
     startX = (rectangle.gameObject.transform.x + rectangle.parentAdjustment.x) - actualWidth/2
     startY = rectangle.gameObject.transform.y + rectangle.parentAdjustment.y  - actualHeight/2
@@ -134,7 +139,8 @@ function _drawText(renderText) {
     if (renderText.filledText) {
         ctx.fillStyle = renderText.fillStyle
         ctx.fillText(renderText.text, renderText.gameObject.transform.x, renderText.gameObject.transform.y)
-    } else {
+    } 
+    if (renderText.strokedText){
         ctx.strokeStyle = renderText.strokeStyle
         ctx.strokeText(renderText.text, renderText.gameObject.transform.x, renderText.gameObject.transform.y)
     }
