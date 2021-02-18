@@ -4,7 +4,7 @@
 //  * can include layer-elements and supply them for gameloop for processing
 //  * can accept new layer objects, and automatically supply them for gameloop
 
-class SceneManager {
+class SceneManager {    
     // should only ever contain LayerElements
     LAYERS = [
         new Layer("norender", []),
@@ -21,9 +21,9 @@ class SceneManager {
 
     /**
      * 
-     * @param {GameObject} gameObject 
+     * @param {GameObject} gameObject : GameObject type object 
      * @param {number} layer : layer defaults to layer 4, termed the 'actor layer'
-     * @param {number} priority
+     * @param {number} priority : higher priority gets drawn later, with objects of same priority the order is unpredicatable (not exactly, but...)
      */
     includeInScene = function (gameObject, layer = 4, priority = 0) {
         let element = new LayerElement(gameObject.name, gameObject, priority)
@@ -50,11 +50,13 @@ class SceneManager {
                         layerElement = this.LAYERS[i].elements.splice(j, 1)
                         console.log(layer)
                         console.log(layerElement)
+                        return 
                     }
                 }
             }
         }
         // Remove from id list
+        
     }
     // returns all gameObjects found by name of gameobject (the searched elements are LayerElements wrapping gameobject)
     findGameObjects = function (name, layer = 4) {
@@ -71,7 +73,6 @@ class SceneManager {
 
     // returns all gameObjects found by name of gameobject (the searched elements are LayerElements wrapping gameobject)
     findGameObjectByID = function (id) {
-        let match
         return this.GAMEOBJECTSBYID[id]
     }
 

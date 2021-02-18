@@ -29,6 +29,51 @@ class Sprite {
         }
     }
 }
+class SpriteSheet {
+    constructor(gameObject, image, animationAtlas) {
+        this.gameObject = gameObject
+        this.image = image
+        this.atlas = animationAtlas
+        this.animationName // supply name of Animation Segment
+        this.nextFrameNumber = 1 // 
+        this.play = true // decides if animation should be moved along; false will display the last 
+        this.repeat = true
+        this.secondsBetweenFrames = 1
+        this.timeSinceLastFrame = 10000
+
+        this.render = function () {
+            if (this.animationName) {
+                _drawAnimationFrame(this)
+            }
+        }
+    }
+}
+
+class AnimationAtlas {
+    constructor(segments) {
+        this.segments = {}
+        segments.forEach(segment => {
+            this.put(segment)
+        });
+    }
+
+    put = function (segment) {
+        this.segments[segment.name] = segment
+    }
+}
+
+class AnimationSegment {
+    constructor(name, startX, startY, fWidth, fHeight, numberOfFrames, numberOfRows, numberOfColumns) {
+        this.name = name
+        this.startX = startX
+        this.startY = startY
+        this.fWidth = fWidth
+        this.fHeight = fHeight
+        this.numberOfFrames = numberOfFrames
+        this.numberOfColumns = numberOfColumns
+        this.numberOfRows = numberOfRows
+    }
+}
 
 /// modification to RenderText and text drawing: possibility to render unstroked text
 
@@ -68,45 +113,47 @@ class Circle {
 }
 
 class Rectangle {
-    constructor(gameObject,width,height,parentAdjustment = { x: 0, y: 0 }, filled = true, stroked = false, fillStyle = "#212121", strokeStyle = "black"){
+    constructor(gameObject, width, height, parentAdjustment = { x: 0, y: 0 }, filled = true, stroked = false, fillStyle = "#212121", strokeStyle = "black") {
         this.gameObject = gameObject,
-        this.width = width,
-        this.height = height,
-        this.parentAdjustment = parentAdjustment,
-        this.filled = filled,
-        this.stroked = stroked,
-        this.fillStyle = fillStyle,
-        this.strokeStyle = strokeStyle,
+            this.width = width,
+            this.height = height,
+            this.parentAdjustment = parentAdjustment,
+            this.filled = filled,
+            this.stroked = stroked,
+            this.fillStyle = fillStyle,
+            this.strokeStyle = strokeStyle,
 
-        this.render = function (){
-            _drawRectangle(this)
-        }
+            this.render = function () {
+                _drawRectangle(this)
+            }
     }
 }
 
-function _drawRectangle(rectangle){    
 
-    actualWidth = rectangle.width * rectangle.gameObject.transform.scale    
+
+function _drawRectangle(rectangle) {
+
+    actualWidth = rectangle.width * rectangle.gameObject.transform.scale
     actualHeight = rectangle.height * rectangle.gameObject.transform.scale
 
-    startX = (rectangle.gameObject.transform.x + rectangle.parentAdjustment.x) - actualWidth/2
-    startY = rectangle.gameObject.transform.y + rectangle.parentAdjustment.y  - actualHeight/2
+    startX = (rectangle.gameObject.transform.x + rectangle.parentAdjustment.x) - actualWidth / 2
+    startY = rectangle.gameObject.transform.y + rectangle.parentAdjustment.y - actualHeight / 2
 
     ctx.save()
     ctx.beginPath()
-    _rotateForDraw(rectangle,rectangle.gameObject)    
+    _rotateForDraw(rectangle, rectangle.gameObject)
 
-    if(rectangle.filled){
+    if (rectangle.filled) {
         ctx.fillStyle = rectangle.fillStyle
-        ctx.rect(startX,startY,actualWidth,actualHeight)
+        ctx.rect(startX, startY, actualWidth, actualHeight)
         ctx.fill()
     }
 
-    if(rectangle.stroked){
+    if (rectangle.stroked) {
         ctx.strokeStyle = rectangle.strokeStyle
-        ctx.rect(startX,startY,actualWidth,actualHeight)
+        ctx.rect(startX, startY, actualWidth, actualHeight)
         ctx.stroke()
-    }   
+    }
 
     ctx.restore()
 }
@@ -118,7 +165,7 @@ function _drawCircle(circle) {
 
     ctx.save()
     ctx.beginPath()
-    ctx.arc(actualX, actualY, circle.radius * circle.transform.scale, 2 * Math.PI,false)
+    ctx.arc(actualX, actualY, circle.radius * circle.transform.scale, 2 * Math.PI, false)
 
     if (circle.filled) {
         ctx.fillStyle = circle.fillStyle
@@ -139,8 +186,8 @@ function _drawText(renderText) {
     if (renderText.filledText) {
         ctx.fillStyle = renderText.fillStyle
         ctx.fillText(renderText.text, renderText.gameObject.transform.x, renderText.gameObject.transform.y)
-    } 
-    if (renderText.strokedText){
+    }
+    if (renderText.strokedText) {
         ctx.strokeStyle = renderText.strokeStyle
         ctx.strokeText(renderText.text, renderText.gameObject.transform.x, renderText.gameObject.transform.y)
     }
@@ -149,13 +196,13 @@ function _drawText(renderText) {
 
 function _drawSprite(image, gameObject) {
 
-    if (gameObject.activeInScene) {
+    if (gameObject.activeInScene) { // i believe this check shoudl be moved to the local render() method calling this method
         ctx.save()
 
         if (gameObject.transform.rotation != 0) { // this is actually dumb, because it would prevent negative rotations... hmm
             _rotateForDraw(image, gameObject)
         }
-        ctx.drawImage(image, gameObject.transform.x - image.width/2, gameObject.transform.y-image.height/2)
+        ctx.drawImage(image, gameObject.transform.x - image.width / 2, gameObject.transform.y - image.height / 2)
 
         ctx.restore()
     } else {
@@ -163,10 +210,47 @@ function _drawSprite(image, gameObject) {
     }
 }
 
+function _drawAnimationFrame(spritesheet) {
+
+    let animation = spritesheet.atlas.segments[spritesheet.animationName] // find right animation by name
+
+    // calculate column and row numbers
+    let columnNumber = Math.floor(spritesheet.nextFrameNumber / (animation.numberOfRows + 1)) // column is equal to 'frame #' divided by 'number of members in a row' minus 1 
+    let rowNumber = (spritesheet.nextFrameNumber - columnNumber * animation.numberOfRows) - 1 // row is equal to frame # minus the product of column found times number of members in row minus 1
+    //console.log("Frame no: " + nextFrameNumber+"\tColumn: " + columnNumber + "\tRow: "+ rowNumber )
+
+    let sheetXStart = animation.startX + animation.fWidth * rowNumber
+    let sheetYStart = animation.startY + animation.fHeight * columnNumber
+    //console.log("Frame Sheet\t X Start: \t"+sheetXStart+"\tY start: "+ sheetYStart)
+
+    ctx.save()
+
+    _rotateForDraw(spritesheet.image, spritesheet.gameObject)
+
+    ctx.drawImage(spritesheet.image, sheetXStart, sheetYStart, animation.fWidth, animation.fHeight, spritesheet.gameObject.transform.x, spritesheet.gameObject.transform.y, animation.fWidth * spritesheet.gameObject.transform.scale, animation.fHeight * spritesheet.gameObject.transform.scale)
+
+    ctx.restore()
+
+    // detmine next frame - refactor
+    if (!spritesheet.repeat && spritesheet.nextFrameNumber === animation.numberOfFrames) { return }
+
+    if (spritesheet.play) {
+
+        // check if it is time for the next frame
+        spritesheet.timeSinceLastFrame += HEART.deltaTime
+        if (spritesheet.timeSinceLastFrame >= spritesheet.secondsBetweenFrames) {
+
+            spritesheet.timeSinceLastFrame = 0
+            spritesheet.nextFrameNumber++
+            if (spritesheet.nextFrameNumber > animation.numberOfFrames) { spritesheet.nextFrameNumber = 1 }
+        }
+    }
+}
+
 // Method should only becalled internally
 function _rotateForDraw(image, gameObject) {
-    shapeXCenter = gameObject.transform.x 
-    shapeYCenter = gameObject.transform.y 
+    shapeXCenter = gameObject.transform.x
+    shapeYCenter = gameObject.transform.y
 
     // move center of canvas to center of image
     ctx.translate(shapeXCenter, shapeYCenter)

@@ -1,22 +1,22 @@
 /// Very, very alpha. :D
 
 let canvas, ctx
-const scenemanager = new SceneManager()
+const SCENEMANAGER = new SceneManager()
 
 window.addEventListener("load", function () { setup() })
 
 function setup() {
 
-    // scene manager hold layers, and the gameloop; 
-    // the gameloop takes care of 'updating', then rendering all 'gameobjects' 
-    //      * by 'looping' through all layers contained.
-    // The gameloop the beats the HEART, which should always be queries to make gameplay as framerate independent as possibleh
-    scenemanager.GAMELOOP = new GameLoop(scenemanager)
-
     canvas = document.getElementById("canvas")
     ctx = canvas.getContext("2d")
 
-    scenemanager.GAMELOOP.doLoop() // starts the game looping 
+    // scene manager hold layers, and the gameloop; 
+    // the gameloop takes care of 'updating', then rendering all 'gameobjects' 
+    //      * by 'looping' through all layers contained.
+    // The gameloop the beats the HEART, which should always be queries to make gameplay as framerate independent as possible    
+
+    SCENEMANAGER.GAMELOOP = new GameLoop()
+    SCENEMANAGER.GAMELOOP.doLoop() // starts the game looping
 
     _adjustCanvas() // makes the canvas the size of the renderable part of browser window
 
@@ -24,28 +24,32 @@ function setup() {
     const player2 = createPlayer("Oline", ["h", "e", "d", "f"], { x: 270, y: 100 }, 6, 7, .4, "resources/images/Player/p3_jump.png")
     const player3 = createPlayer("Peter", ["U", "J", "H", "K"], { x: 352, y: 122 }, 12, 4, 0, "resources/images/Player/p1_hurt.png")
 
-    scenemanager.includeInScene(player1, 4, 4)
-    scenemanager.includeInScene(player2, 4, 5)
-    scenemanager.includeInScene(player3, 4, 2)
+    SCENEMANAGER.includeInScene(player1, 4, 4)
+    SCENEMANAGER.includeInScene(player2, 4, 5)
+    SCENEMANAGER.includeInScene(player3, 4, 2)
 
     GAMEINPUT.startDetectingInput()
     GAMEINPUT.subscribeToKeyDown(player1)
     GAMEINPUT.subscribeToKeyDown(player2)
     GAMEINPUT.subscribeToKeyDown(player3)
-    
+
 
     textRenderers = createPlayerHelpText() // used for creating and placing the text
 
-    scenemanager.includeInScene(textRenderers[0], 5)
-    scenemanager.includeInScene(textRenderers[1], 3)
-    scenemanager.includeInScene(textRenderers[2], 3)
+    SCENEMANAGER.includeInScene(textRenderers[0], 5)
+    SCENEMANAGER.includeInScene(textRenderers[1], 3)
+    SCENEMANAGER.includeInScene(textRenderers[2], 3)
 
     createSmallUtilityGameObjects()
     createBackground()
 
+    createWalkingWoman()
+
     console.log(GAMEINPUT)
-    console.log(scenemanager)
+    console.log(SCENEMANAGER)
 }
+
+
 
 function createPlayer(name, keySet, position, xChange, yChange, rotSpeed, spriteSource) {
     let newGO = new GameObject(name,
@@ -124,8 +128,8 @@ createSmallUtilityGameObjects = function () {
             update: function (gameObject) { },
             playerInput: function (key, gameObject) { console.log(key) }
         })
+    SCENEMANAGER.includeInScene(keycodePrinter, 0)
     GAMEINPUT.subscribeToKeyDown(keycodePrinter)
-    scenemanager.includeInScene(keycodePrinter, 0) // 0 is the nonrendered layer
 
     // enables timescaling by pressing numpad -/+ (reset with home)
     timeScaler = new GameObject("Time Scale Thing",
@@ -137,7 +141,7 @@ createSmallUtilityGameObjects = function () {
                 if (key === '$') { HEART.timeScale = 1 } // home 
             }
         })
-    scenemanager.includeInScene(timeScaler, 0)
+    SCENEMANAGER.includeInScene(timeScaler, 0)
     GAMEINPUT.subscribeToKeyDown(timeScaler)
 
     // creates customized cursor
@@ -148,17 +152,17 @@ createSmallUtilityGameObjects = function () {
             }
         })
     cursorFollow.sprite = new Sprite("resources/images/Player/dwarven.png", cursorFollow)
-    scenemanager.includeInScene(cursorFollow, 3)
+    SCENEMANAGER.includeInScene(cursorFollow, 3)
 }
 
 function createBackground() {
 
     // create logo group: a parent object, hav
     logoObject = new GameObject("Version Bar Text Object", { update: function () { } })
-    logoObject.sprite = new RenderText("Game Loop 3rd Run", logoObject, 20)
+    logoObject.sprite = new RenderText("Game Loop 4th Run", logoObject, 20)
     logoObject.sprite.fillStyle = "white"
     logoObject.sprite.filledText = true
-    scenemanager.includeInScene(logoObject, 2, 2)
+    SCENEMANAGER.includeInScene(logoObject, 2, 2)
 
     logoBackground = new GameObject("Version Bar Backgroud", {
         childGameObject: logoObject,
@@ -171,7 +175,7 @@ function createBackground() {
     })
     logoBackground.sprite = new Rectangle(logoBackground, 250, 40)
     logoBackground.sprite.fillStyle = "blue"
-    scenemanager.includeInScene(logoBackground, 2, 0)
+    SCENEMANAGER.includeInScene(logoBackground, 2, 0)
 
     // create sun
     sunObject = new GameObject("The Sun", {
@@ -183,11 +187,11 @@ function createBackground() {
     sunObject.sprite.fillStyle = "yellow"
     sunObject.sprite.stroked = true
     sunObject.sprite.strokeStyle = "white"
-    scenemanager.includeInScene(sunObject, 1)
+    SCENEMANAGER.includeInScene(sunObject, 1)
 
     //spread clouds
 
-  let  cloudSources = [
+    let cloudSources = [
         "resources/images/clouds/cumulus-big1.png",
         "resources/images/clouds/cumulus-big2.png",
         "resources/images/clouds/cumulus-big3.png",
@@ -195,7 +199,7 @@ function createBackground() {
         "resources/images/clouds/cumulus-small1.png"
     ]
 
-    let numberOfClouds = ctx.canvas.height * 0.01
+    let numberOfClouds = ctx.canvas.height * 0.02
     for (let i = 0; i < numberOfClouds; i++) {
 
         cloud = new GameObject("Cloud " + i,
@@ -204,10 +208,10 @@ function createBackground() {
                 yChange: 0,
                 update: function (gameObject) {
                     // keeping clouds on screen 
-                    if (gameObject.transform.x - 100 > ctx.canvas.width) { 
+                    if (gameObject.transform.x - 100 > ctx.canvas.width) {
                         gameObject.transform.x = -50
-                        gameObject.transform.y = Math.random()*ctx.canvas.height
-                     }
+                        gameObject.transform.y = Math.random() * ctx.canvas.height
+                    }
                     // update cloud position
                     gameObject.transform.move(
                         gameObject.qualia.xChange * HEART.deltaTime,
@@ -215,11 +219,37 @@ function createBackground() {
                 }
             })
 
-        cloud.sprite = new Sprite(cloudSources[i%cloudSources.length], cloud)
+        cloud.sprite = new Sprite(cloudSources[i % cloudSources.length], cloud)
         cloud.transform.newPosition(Math.random() * ctx.canvas.width, Math.random() * ctx.canvas.height)
-        xDirection = Math.random() > .9 ? -1 : 1
+        xDirection = Math.random() > .85 ? -1 : 1
         cloud.qualia.xChange = Math.random() * 50 * xDirection
 
-        scenemanager.includeInScene(cloud, 2)
+        SCENEMANAGER.includeInScene(cloud, 2)
     }
+}
+
+function createWalkingWoman() {
+
+    ninja = new GameObject("Ninja", {
+        update: function (gameObject) {
+            gameObject.transform.newPosition(ctx.canvas.width - 250, ctx.canvas.height - 90)
+        }
+    }, ctx.canvas.width, ctx.canvas.height)
+
+    let clericSheetImage = new Image()
+    clericSheetImage.src = "resources/images/humanfemale/cleric.png"
+    let walkingSegment = new AnimationSegment("Walking", 33, 4, 32, 62, 6, 6, 1)
+    let vrtStrokeSegment = new AnimationSegment("Vertical Stroke", 1, 132, 32, 62, 12, 4, 3)
+    let clericAtlas = new AnimationAtlas([walkingSegment, vrtStrokeSegment])
+    console.log(clericAtlas)
+    clericSpriteSheet = new SpriteSheet(ninja, clericSheetImage, clericAtlas)
+    clericSpriteSheet.secondsBetweenFrames = 0.6
+    clericSpriteSheet.animationName = "Vertical Stroke"
+
+    ninja.sprite = clericSpriteSheet
+
+    //ninja.transform.scale = 5
+    // ninja.transform.rotate(90) // rotation not quite working as expected
+
+    SCENEMANAGER.includeInScene(ninja, 5)
 }

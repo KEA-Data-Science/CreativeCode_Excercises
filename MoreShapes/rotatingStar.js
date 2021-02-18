@@ -50,31 +50,3 @@ function translatePolygon(vertices, x, y) {
       vertices[i].y += y; 
     } 
 } 
-    
-function draw() { 
-    
-    // Clear everything with grey background 
-    background(255); 
-    rotatePolygon(starPolygon,1); 
-    drawPolygon(starPolygon); 
-    let a = calcMidpoint(starPolygon); 
-    
-    // Origin the polygon to center 
-    // and draw it at (400, 300) 
-    translatePolygon(starPolygon, 400-a.x, 300-a.y) 
-} 
-        
-// This is how you draw a polygon in p5.js 
-function drawPolygon(vertices) { 
-    
-    beginShape(); 
-      
-    for (let i = 0; i < vertices.length; ++i) 
-        vertex(vertices[i].x, vertices[i].y); 
-      
-    fill(255, 217, 0); 
-   
-    // If you don't close it then it'd  
-    // draw a chained line-segment 
-    endShape(CLOSE); 
-} 
