@@ -229,27 +229,32 @@ function createBackground() {
 }
 
 function createWalkingWoman() {
-
+    // creating ninja woman GameObject
     ninja = new GameObject("Ninja", {
         update: function (gameObject) {
             gameObject.transform.newPosition(ctx.canvas.width - 250, ctx.canvas.height - 90)
+        },
+        playerInput: function (key, gameObject) {
+            if (key === 'G') { gameObject.sprite.animationName = "Walking" } // numpad -
+            if (key === 'L') { gameObject.sprite.animationName = "Vertical Stroke" } // numpad -
         }
     }, ctx.canvas.width, ctx.canvas.height)
 
-    let clericSheetImage = new Image()
-    clericSheetImage.src = "resources/images/humanfemale/cleric.png"
+    let womanSheetImage = new Image()
+    womanSheetImage.src = "resources/images/humanfemale/cleric.png"
     let walkingSegment = new AnimationSegment("Walking", 33, 4, 32, 62, 6, 6, 1)
     let vrtStrokeSegment = new AnimationSegment("Vertical Stroke", 1, 132, 32, 62, 12, 4, 3)
     let clericAtlas = new AnimationAtlas([walkingSegment, vrtStrokeSegment])
     console.log(clericAtlas)
-    clericSpriteSheet = new SpriteSheet(ninja, clericSheetImage, clericAtlas)
-    clericSpriteSheet.secondsBetweenFrames = 0.6
-    clericSpriteSheet.animationName = "Vertical Stroke"
+    womanSpritesheet = new SpriteSheet(ninja, womanSheetImage, clericAtlas)
+    womanSpritesheet.secondsBetweenFrames = 0.6
+    womanSpritesheet.animationName = "Vertical Stroke"
 
-    ninja.sprite = clericSpriteSheet
+    ninja.sprite = womanSpritesheet
 
     //ninja.transform.scale = 5
     // ninja.transform.rotate(90) // rotation not quite working as expected
 
     SCENEMANAGER.includeInScene(ninja, 5)
+    GAMEINPUT.subscribeToKeyDown(ninja)
 }

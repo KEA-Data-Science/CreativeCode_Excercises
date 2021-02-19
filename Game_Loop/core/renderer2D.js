@@ -123,6 +123,10 @@ class Rectangle {
             this.fillStyle = fillStyle,
             this.strokeStyle = strokeStyle,
 
+            this.getArea = function(){
+                return this.width * this.height
+            }
+
             this.render = function () {
                 _drawRectangle(this)
             }

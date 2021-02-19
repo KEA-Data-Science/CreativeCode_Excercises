@@ -14,11 +14,21 @@ let radius = canvas.height / 4
 //  document.onkeypress = myKeyPress
 window.addEventListener("keydown", interpretKey)
 
+window.addEventListener("load", setup)
+
+function setup(){
+drawScene()
+}
+
+
+
 let lastKeyStroke = '-'
 let score = 0
 
 
-drawScene()
+let x = 100
+let y = 100
+//drawScene()
 
 function interpretKey(e) {
     let keynum;
@@ -39,9 +49,15 @@ function interpretKey(e) {
 }
 
 function drawScene() {
+    requestAnimationFrame(drawScene)
     clearCanvas()
     drawBackground()
     drawText()
+
+    emptyBox = new EmptyBox(x,y)
+
+    delete emptyBox
+
 }
 
 function clearCanvas() {
@@ -52,6 +68,7 @@ function clearCanvas() {
     ctx.restore()
 }
 
+
 function drawBackground() {
     ctx.beginPath()
     ctx.arc(xCenter, yCenter, radius, 0, (2 * Math.PI)*(score/360), false)
@@ -59,16 +76,16 @@ function drawBackground() {
     ctx.fill()
 
     ctx.beginPath()
-    ctx.moveTo(xCenter, yCenter)
-    ctx.lineTo(xCenter - radius, yCenter + radius)
-    ctx.stroke()
+    ctx.rect(x,y,60,60)
 
-    ctx.beginPath()
-    ctx.fillStyle = "blue"
-    ctx.moveTo(xCenter, yCenter)
-    ctx.lineTo(200, 100)
-    ctx.lineTo(150, 150)
     ctx.fill()
+
+    x+=Math.random()* 10
+    y+= Math.random() *10
+
+    if(x>ctx.canvas.width){x = Math.random()*ctx.canvas.width}
+    if(y>ctx.canvas.height){y = Math.random()*ctx.canvas.height}
+
 }
 
 function drawText() {
